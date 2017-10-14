@@ -43,6 +43,11 @@ public class BusTest {
     public void random_name_2(String test) {
         logger.debug("event! value = {}", test);
     }
+    
+    @Subscribe
+    public void random_name_3(String test) {
+        logger.debug("event! value = {}", test);
+    }
 
     @Event
     private static class PrivateStaticEvent {

@@ -37,10 +37,22 @@ public class Bus {
                     buf.append(", ");
                 }
                 Class<?> c = argTypes[i];
-                if (c != null && !c.isAnnotationPresent(Event.class)) {
-                    throw new RuntimeException(c.getName() + " is not an @Event");
+
+                if (c.isAnnotationPresent(Event.class)) {
+                    Event event = c.getAnnotation(Event.class);
+                    String identifier = event.value();
+                    if (identifier.isEmpty()) {
+                        identifier = c.getName();
+                    }
+                    buf.append(identifier);
+                } else {
+                    if (c.equals(String.class)) {
+                        buf.append(c.getName());
+                    } else {
+                        throw new RuntimeException(c + " is not an @Event or String");
+                    }
                 }
-                buf.append((c == null) ? "null" : c.getName());
+
             }
         }
         buf.append(")");
@@ -70,7 +82,7 @@ public class Bus {
                         buf.append(identifier);
                     } else {
                         if (c.equals(String.class)) {
-                            buf.append(o[i].toString());
+                            buf.append(c.getName());
                         } else {
                             buf.append(c.getName());
                         }
@@ -136,7 +148,11 @@ public class Bus {
         if (args != null) {
             if (args[0] instanceof String){
                 String identifier = (String) args[0];
-                post(identifier, Arrays.copyOfRange(args, 1, args.length));
+                Object[] tmp = Arrays.copyOfRange(args, 1, args.length);
+                if (tmp.length == 0) {
+                    post(argumentObjectToString(args), args);
+                }
+                post(identifier, tmp);
             } else {
                 post(argumentObjectToString(args), args);
             }
